@@ -1,0 +1,268 @@
+#include<iostream>
+
+#define ElemType int
+#define Status int
+#define ERROR 1
+#define OK 0
+
+using namespace std;
+
+//单链表的基本结构
+typedef struct LNode
+{
+	ElemType data;
+	struct LNode* next;
+}LNode,*LinkList;
+
+//双向链表的基本结构
+typedef struct DuLNode
+{
+	ElemType data;
+	struct DuLNode* prior;
+	struct DuLNode* next;
+}DuLNode,*DuLinkList;
+
+
+//初始化单链表
+Status InitList(LinkList& L)
+{
+	L = new LNode;
+	L->data = 0;//头节点的数据域存储整个链表的数据长度，初始值为0.
+	L->next = NULL;
+	return OK;
+}
+
+//单链表取值,取出第i个节点的数据值
+Status GetElem(LinkList L, int i, ElemType& e)
+{
+	LinkList p = L->next;//初始化，p指向首元节点
+	int j = 1;//从首元节点开始计数
+	while (p && j < i)
+	{
+		p = p->next;
+		++j;
+	}
+	if (!p || j > i)//i<=0,或者i超出的链表长度
+	{
+		return ERROR;
+	}
+	e = p->data;
+	return OK;
+}
+
+//单链表的按值查找
+LNode* LocateElem(LinkList L, ElemType& e)
+{
+	LinkList p = L->next;//初始化，p指向首元节点
+	while (p && p->data != e)//条件的判断都以当前节点为准，不涉及下一节点
+	{
+		p = p->next;
+	}
+	return p;
+}
+
+//单链表的插入
+Status ListInsert(LinkList& L, int i, ElemType e)
+{
+	LinkList p = L;//头节点,可以插在头节点之后，充当第一个节点，即首元节点
+	int j = 0;
+	while (p && j < i - 1)
+	{
+		p = p->next;
+		++j;
+	}
+	if (!p || j > i - 1)//i值为负
+	{
+		return ERROR;
+	}
+
+	LinkList s = new LNode;
+	s->next = p->next;
+	s->data = e;
+	p->next = s;
+
+	L->data += 1;//插入一个增加一个
+	return OK;
+}
+
+//单链表的删除
+Status ListDelete(LinkList& L, int i)
+{
+	LinkList p = L;
+	int j = 0;
+	while (p->next && j < i - 1)
+	{
+		p = p->next;
+		++j;
+	}
+	if (!p->next || j > i - 1)
+	{
+		return ERROR;
+	}
+
+	LinkList temp = p->next;//存储等待释放的节点
+	p->next = p->next->next;
+	delete temp;
+	L->data -= 1;
+	return OK;
+}
+
+//前插法插入新节点
+void CreateList_H(LinkList& L, int n)
+{
+	L = new LNode;
+	L->next = NULL;//先建立一个带头节点的空链表
+	L->data = n;
+	for (int i = 0; i < n; i++)
+	{
+		LinkList p = new LNode;//新建一个节点
+		cin >> p->data;
+		p->next = L->next;
+		L->next = p;
+	}
+}
+
+//尾插法创建单链表
+void CreateList_R(LinkList& L, int n)
+{
+	L = new LNode;
+	L->next = NULL;
+	L->data = n;				//将链表的长度即节点个数赋给头节点的data
+	LinkList r = L;				//尾节点
+	for (int i = 0; i < n; i++)
+	{
+		LinkList temp = new LNode;
+		cin >> temp->data;//节点数据域输入数据
+		temp->next = NULL;
+		r->next = temp;
+		r = temp;
+	}
+}
+
+//通过头节点的数据域得知链表节点个数
+int ListLengh(LinkList L)
+{
+	return L->data;
+}
+
+//通过遍历链表计算节点个数
+int ListLengh_1(LinkList L)
+{
+	LinkList p = L->next;//从首元节点开始
+	int j = 0;//节点的数量，不包含头节点
+	while (p)
+	{
+		p = p->next;
+		++j;
+	}
+	return j;
+}
+
+//合并集
+void MergeList(LinkList& L1, LinkList L2)
+{
+	ElemType e = 0;
+	int l1 = ListLengh(L1);
+	int l2 = ListLengh(L2);
+
+	int l11 = ListLengh_1(L1);
+	int l21 = ListLengh_1(L2);
+
+	for (int i = 1; i <= l2; i++)
+	{
+		GetElem(L2, i, e);
+		if (!LocateElem(L1, e))//不相同的才插入进去。
+		{
+			ListInsert(L1, ++l1, e);
+		}
+	}
+}
+
+//循环链表，最后节点的next直接指向头节点
+
+//双链表取第i个节点指针
+DuLNode* GetElem_DuL(DuLinkList L, int i)
+{
+	DuLinkList p = L->next;//初始化，p指向首元节点
+	int j = 1;//从首元节点开始计数
+	while (p && j < i)
+	{
+		p = p->next;
+		++j;
+	}
+	if (!p || j > i)
+	{
+		return NULL;
+	}
+	return p;
+}
+
+//双向链表,插入节点操作
+Status ListInsert_DuL(DuLinkList& L, int i, ElemType e)
+{
+	DuLinkList p = NULL;
+	if (!(p = GetElem_DuL(L, i)))
+	{
+		return ERROR;
+	}
+	DuLinkList s = new DuLNode;
+	s->data = e;
+	s->prior = p->prior;//只拿到p
+	p->prior->next = s;
+	s->next = p;
+	p->prior = s;
+	return OK;
+}
+
+//双向链表删除节点操作
+Status ListDelete_DuL(DuLinkList& L, int i)
+{
+	DuLinkList p = NULL;
+	if (!(p = GetElem_DuL(L, i)))
+	{
+		return ERROR;
+	}
+	p->prior->next = p->next;
+	p->next->prior = p->prior;
+	delete p;
+	return OK;
+}
+
+
+
+
+int main()
+{
+	//创建两个头指针
+	LinkList temp1 = NULL, temp2 = NULL;
+	if (InitList(temp1) == OK)
+	{
+		cout << "头指针1创建成功" << endl;
+	}
+
+	if (InitList(temp2) == OK)
+	{
+		cout << "头指针2创建成功" << endl;
+	}
+
+	//将值一次加入到头指针之后，构成链表
+	//1：7, 5, 3, 11
+	//2：2，6，3
+	CreateList_R(temp1, 4);
+	CreateList_R(temp2, 3);
+
+	
+	//遍历链表temp2，将节点数据取出依次与temp1链表比较，不一样就插入在temp1之后。
+	MergeList(temp1, temp2);
+
+	
+	
+	
+	
+	int p = 0;
+
+
+
+
+	return 0;
+}
