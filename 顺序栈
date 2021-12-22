@@ -1,0 +1,71 @@
+#include<iostream>
+
+#define SElemType int
+#define Status int
+#define OVERFLOW 2
+#define ERROR 1
+#define OK 0
+
+#define MAXSIZE 100
+
+using namespace std;
+
+typedef struct
+{
+	SElemType* base;//栈底指针
+	SElemType* top; //栈顶指针
+	int stacksize;//栈可用的最大容量
+}SqSrack;
+
+//顺序栈的初始化
+Status InitStack(SqSrack& S)
+{
+	S.base = new SElemType[MAXSIZE];
+	if (!S.base)
+	{
+		exit(OVERFLOW);//空间生成失败
+	}
+	S.top = S.base;//空栈
+	S.stacksize = MAXSIZE;//设置栈的大小，和顺序表内数据长度不一样。
+	return OK;
+}
+
+//入栈
+Status Push(SqSrack& S, SElemType e)
+{
+	if (S.top - S.base == S.stacksize)//栈已经满了
+	{
+		return ERROR;
+	}
+	*S.top++ = e;//先执行赋值，再指针++
+	return OK;
+}
+
+//出栈
+Status Pop(SqSrack& S, SElemType& e)
+{
+	if (S.base == S.top)//栈已经空了
+	{
+		return ERROR;
+	}
+	e = *--S.top;
+	return OK;
+}
+
+//取栈顶元素
+SElemType GetTop(SqSrack S, SElemType& e)
+{
+	if (S.top != S.base)
+	{
+		return *(S.top - 1);
+	}
+}
+
+
+
+
+int main()
+{
+
+	return 0;
+}
