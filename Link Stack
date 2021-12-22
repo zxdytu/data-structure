@@ -1,0 +1,74 @@
+#include<iostream>
+
+#define ElemType int
+#define Status int
+#define ERROR 1
+#define OK 0
+
+using namespace std;
+
+typedef struct StackNode
+{
+	ElemType data;
+	struct StackNode* next;
+}StackNode, * LinkStack;
+
+Status InitStack(LinkStack& S)
+{
+	S = NULL;//不用产生头节点
+	return OK;
+}
+
+
+//由于是链栈，不需要判断栈是否满
+Status PushStack(LinkStack& S, ElemType e)
+{
+	LinkStack p = new StackNode;
+	p->data = e;
+	p->next = S;//p的next指向S
+	S = p;//栈顶改为p
+	return OK;
+}
+
+//出栈，则需要判断栈是否为空
+Status Pop(LinkStack& S, ElemType& e)
+{
+	if (S == NULL)
+	{
+		return ERROR;
+	}
+	e = S->data;
+	LinkStack p = S;//临时变量存储栈顶S
+	S = S->next;
+	delete p;
+	return OK;
+}
+
+
+//取栈顶元素，因为是栈数据结构，数据只能从栈顶取出
+ElemType GetTop(LinkStack S)
+{
+	if (!S)//栈非空
+	{
+		return ERROR;
+	}
+	return S->data;
+}
+
+int main()
+{
+	LinkStack temp;
+	ElemType e;
+	InitStack(temp);
+	for (int i = 0; i < 5; ++i)
+	{
+		PushStack(temp, i);//依次将数据压入栈中
+	}
+	Pop(temp, e);
+	cout << e << endl;
+	e = GetTop(temp);
+	cout << e << endl;
+	int p = 0;
+
+	return 0;
+}
